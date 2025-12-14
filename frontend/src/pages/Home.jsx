@@ -20,7 +20,7 @@ export default function Home() {
       <div className="home-container">
         <div className="welcome-box">
           <h1>Welcome {userName ? userName : "User"} 👋</h1>
-          <p>Your account is successfully logged in.</p>
+          <p>Your account is successfully logged in account.</p>
         </div>
 
         <div className="card-grid">
