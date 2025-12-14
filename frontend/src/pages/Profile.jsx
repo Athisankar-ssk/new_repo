@@ -17,7 +17,7 @@ export default function Profile() {
       .then((res) => {
         setUser(res.data);
       })
-      .catch(() => setMessage("Failed to load user details"));
+      .catch(() => setMessage("Failed to load user details try again"));
   }, []);
 
   
