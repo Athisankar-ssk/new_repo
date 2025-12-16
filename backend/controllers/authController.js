@@ -77,4 +77,20 @@ export const updateUser = async (req, res) => {
   }
 };
 
+//Add Profile Image Upload
+
+export const uploadProfileImage = async (req, res) => {
+  try {
+    const user = await User.findById(req.user);
+
+    user.profileImage = `/uploads/${req.file.filename}`;
+    await user.save();
+
+    res.json({ profileImage: user.profileImage });
+  } catch (error) {
+    res.status(500).json({ msg: "Image upload failed" });
+  }
+};
+
+
 //change

@@ -4,103 +4,133 @@ import "./Profile.css";
 
 export default function Profile() {
   const [user, setUser] = useState({});
-  const [editMode, setEditMode] = useState(false); 
+  const [originalUser, setOriginalUser] = useState({});
+  const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
+  // Load profile
+  useEffect(() => {
     api
       .get("/auth/me", {
         headers: { Authorization: token }
       })
       .then((res) => {
         setUser(res.data);
+        setOriginalUser(res.data); // backup
       })
-      .catch(() => setMessage("Failed to load user details try again"));
+      .catch(() => setMessage("Failed to load user details"));
   }, []);
 
-  
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  
   const saveChanges = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-
     try {
       const res = await api.put("/auth/update", user, {
         headers: { Authorization: token }
       });
 
       setUser(res.data);
-      setMessage("Profile updated!");
-      setEditMode(false);     // 🔥 go back to display mode  
-    } catch (err) {
+      setOriginalUser(res.data);
+      setMessage("Profile updated successfully!");
+      setEditMode(false);
+    } catch {
       setMessage("Update failed");
     }
   };
 
-  
   const cancelEdit = () => {
+    setUser(originalUser); // restore old data
     setEditMode(false);
-    window.location.reload(); // reload original data
   };
+
+  const uploadImage = async (e) => {
+  const token = localStorage.getItem("token");
+
+  const formData = new FormData();
+  formData.append("image", e.target.files[0]);
+
+  const res = await api.post("/auth/upload-profile", formData, {
+    headers: {
+      Authorization: token,
+      "Content-Type": "multipart/form-data"
+    }
+  });
+
+  setUser({ ...user, profileImage: res.data.profileImage });
+};
+
 
   return (
     <div className="profile-container">
-      <h2>Your Profile</h2>
-      {message && <p className="msg">{message}</p>}
+      <div className="profile-card">
 
-      {/* 🔥 DISPLAY MODE */}
-      {!editMode && (
-        <div className="profile-display">
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Phone:</strong> {user.phone || "Not added"}</p>
-          <p><strong>Bio:</strong> {user.bio || "No bio added"}</p>
+        {/* PROFILE IMAGE */}
+        <div className="profile-img">
+  <label htmlFor="profileUpload">
+    <img
+      src={
+        user.profileImage
+          ? `http://localhost:5000${user.profileImage}`
+          : "/default-avatar.png"
+      }
+      alt="profile"
+      title="Click to upload image"
+    />
+    <span className="upload-text">Change Photo</span>
+  </label>
 
-          <button className="edit-btn" onClick={() => setEditMode(true)}>
-            Edit
-          </button>
-        </div>
-      )}
+  <input
+    id="profileUpload"
+    type="file"
+    accept="image/*"
+    onChange={uploadImage}
+    hidden
+  />
+</div>
 
-      {/* 🔥 EDIT MODE */}
-      {editMode && (
-        <form className="profile-card" onSubmit={saveChanges}>
-          <label>Name</label>
-          <input
-            name="name"
-            value={user.name || ""}
-            onChange={handleChange}
-          />
 
-          <label>Phone</label>
-          <input
-            name="phone"
-            value={user.phone || ""}
-            onChange={handleChange}
-          />
+        {!editMode ? (
+          <>
+            <h2>{user.name}</h2>
+            <p>{user.email}</p>
+            <p><strong>Phone:</strong> {user.phone || "Not added"}</p>
+            <p><strong>Bio:</strong> {user.bio || "No bio added"}</p>
 
-          <label>Bio</label>
-          <textarea
-            name="bio"
-            value={user.bio || ""}
-            onChange={handleChange}
-          ></textarea>
+            <button className="edit-btn" onClick={() => setEditMode(true)}>
+              Edit Profile
+            </button>
+          </>
+        ) : (
+          <form onSubmit={saveChanges}>
+            <input
+              name="name"
+              value={user.name || ""}
+              onChange={handleChange}
+            />
+            <input
+              name="phone"
+              value={user.phone || ""}
+              onChange={handleChange}
+            />
+            <textarea
+              name="bio"
+              value={user.bio || ""}
+              onChange={handleChange}
+            />
+            <button type="submit">Save</button>
+            <button type="button" onClick={cancelEdit}>Cancel</button>
+          </form>
+        )}
 
-          <button type="submit" className="save-btn">Save</button>
-
-          <button type="button" className="cancel-btn"
-            onClick={cancelEdit}
-          >
-            Cancel
-          </button>
-        </form>
-      )}
+        {message && <p className="msg">{message}</p>}
+      </div>
     </div>
+  
   );
+  
 }
