@@ -52,7 +52,7 @@ function App() {
         />
 
         <Route
-          path="/settings"
+          path="/Settings"
           element={
             <ProtectedRoute>
               <Layout>

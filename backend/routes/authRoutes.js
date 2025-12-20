@@ -3,7 +3,10 @@ import {
   registerUser,
   loginUser,
   getUserDetails,
-  updateUser
+  updateUser,
+  changePassword,
+  updatePreferences,
+  deleteAccount
 } from "../controllers/authController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
@@ -19,6 +22,9 @@ router.post("/login", loginUser);
 // PROTECTED ROUTES
 router.get("/me", authMiddleware, getUserDetails);
 router.put("/update", authMiddleware, updateUser);
+router.put("/change-password", authMiddleware, changePassword);
+router.delete("/delete-account", authMiddleware, deleteAccount);
+router.put("/preferences", authMiddleware, updatePreferences);
 router.post(
   "/upload-profile",
   authMiddleware,

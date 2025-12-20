@@ -93,4 +93,52 @@ export const uploadProfileImage = async (req, res) => {
 };
 
 
-//change
+//change password
+
+
+export const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.user);
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Old password is incorrect" });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
+    await user.save();
+
+    res.json({ msg: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ msg: "Password update failed" });
+  }
+};
+
+
+// delete account 
+
+export const deleteAccount = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user);
+    res.json({ msg: "Account deleted successfully" });
+  } catch {
+    res.status(500).json({ msg: "Delete failed" });
+  }
+};
+
+export const updatePreferences = async (req, res) => {
+  const { notifications } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    req.user,
+    { notifications },
+    { new: true }
+  );
+
+  res.json(user);
+};
+
+

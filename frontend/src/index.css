@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+body.dark {
+  background: #121212;
+  color: white;
+}
+
+body.dark .profile-card,
+body.dark .settings-card {
+  background: #1e1e1e;
+  color: white;
+}

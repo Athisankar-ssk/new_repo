@@ -6,7 +6,9 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   phone: { type: String, default: "" },
   bio: { type: String, default: "" },
-   profileImage: { type: String, default: "" } 
+   profileImage: { type: String, default: "" } ,
+   notifications: { type: Boolean, default: true }
+
 });
 
 export default mongoose.model("User", userSchema);
