@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import path from "path";
+import taskRoutes from "./routes/taskRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -14,6 +15,9 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(express.json());
 app.use(cors());
 app.use("/uploads", express.static("uploads"));
+
+app.use("/api/tasks", taskRoutes);
+
 
 
 // Connect DB
