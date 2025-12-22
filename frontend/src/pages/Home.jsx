@@ -1,45 +1,62 @@
-
-import "./Home.css";
 import { useEffect, useState } from "react";
+import api from "../services/api";
+import "./Home.css";
 
 export default function Home() {
-  const [userName, setUserName] = useState("");
+  const [stats, setStats] = useState({
+    total: 0,
+    completed: 0,
+    pending: 0
+  });
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userObj = JSON.parse(storedUser);
-      setUserName(userObj.name);
-    }
+    api
+      .get("/tasks", { headers: { Authorization: token } })
+      .then((res) => {
+        const tasks = res.data;
+        setStats({
+          total: tasks.length,
+          completed: tasks.filter((t) => t.completed).length,
+          pending: tasks.filter((t) => !t.completed).length
+        });
+      });
   }, []);
 
   return (
-    <>
-      
+    <div className="home-container">
+      {/* HEADER */}
+      <h1>Welcome, {user?.name} 👋</h1>
+      <p className="subtitle">
+        Manage your daily tasks efficiently
+      </p>
 
-      <div className="home-container">
-        <div className="welcome-box">
-          <h1>Welcome {userName ? userName : "User"} 👋</h1>
-          <p>Your account is successfully logged in account.</p>
+      {/* STATS */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <h2>{stats.total}</h2>
+          <p>Total Tasks</p>
         </div>
 
-        <div className="card-grid">
-          <div className="card">
-            <h3>Profile</h3>
-            <p>View and manage your account details.</p>
-          </div>
+        <div className="stat-card completed">
+          <h2>{stats.completed}</h2>
+          <p>Completed</p>
+        </div>
 
-          <div className="card">
-            <h3>Tasks</h3>
-            <p>Organize your daily activities easily.</p>
-          </div>
-
-          <div className="card">
-            <h3>Settings</h3>
-            <p>Customize your app experience.</p>
-          </div>
+        <div className="stat-card pending">
+          <h2>{stats.pending}</h2>
+          <p>Pending</p>
         </div>
       </div>
-    </>
+
+      {/* QUICK ACTIONS */}
+      <div className="quick-actions">
+        <button>Create Task</button>
+        <button>View Tasks</button>
+        <button>Profile</button>
+      </div>
+    </div>
   );
 }

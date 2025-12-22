@@ -29,19 +29,16 @@ export default function Register() {
       await api.post("/auth/register", form);
       setMessage("Signup Successful! Redirecting to login...");
 
-      setTimeout(() => {
-        navigate("/login"); // 👉 redirect to login page
-      }, 1500);
-
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setMessage(err.response?.data?.msg || "Signup failed");
     }
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-bg"> {/* 🔥 IMPORTANT FIX */}
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Create Account</h2>
+        <h2>Create Account </h2>
 
         {message && <p className="msg">{message}</p>}
 
@@ -62,21 +59,21 @@ export default function Register() {
         />
 
         <input
-  type="password"
-  name="password"
-  placeholder="Create Password"
-  onChange={handleChange}
-  autoComplete="new-password"   // <-- add this
-  required
-/>
-
+          type="password"
+          name="password"
+          placeholder="Create Password"
+          onChange={handleChange}
+          autoComplete="new-password"
+          required
+        />
 
         <button type="submit" className="btn-auth">
           Sign Up
         </button>
 
-        <p>
-          Already have an account? <Link to="/login">Login here</Link>
+        <p className="auth-link">
+          Already have an account?{" "}
+          <Link to="/login">Login here</Link>
         </p>
       </form>
     </div>

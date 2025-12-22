@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
-import "./Auth.css"; // same CSS file as Register
+import "./Auth.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,9 +23,8 @@ export default function Login() {
     try {
       const res = await api.post("/auth/login", form);
 
-      // save token
-     localStorage.setItem("token", res.data.token);
-localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
       setMessage("Login Successful! Redirecting...");
       setTimeout(() => navigate("/"), 1000);
@@ -35,9 +34,9 @@ localStorage.setItem("user", JSON.stringify(res.data.user));
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-bg"> {/* 🔥 THIS LINE FIXES UI */}
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Login</h2>
+        <h2>Welcome Back 👋</h2>
 
         {message && <p className="msg">{message}</p>}
 
@@ -50,20 +49,19 @@ localStorage.setItem("user", JSON.stringify(res.data.user));
         />
 
         <input
-  type="password"
-  name="password"
-  placeholder="Create Password"
-  onChange={handleChange}
-  autoComplete="new-password"   // <-- add this
-  required
-/>
-
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
+          autoComplete="current-password"
+          required
+        />
 
         <button type="submit" className="btn-auth">
           Login
         </button>
 
-        <p>
+        <p className="auth-link">
           Don't have an account?{" "}
           <Link to="/register">Create Account</Link>
         </p>
