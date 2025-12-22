@@ -3,18 +3,20 @@ import api from "../services/api";
 import "./Home.css";
 
 export default function Home() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
     pending: 0
   });
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     api
-      .get("/tasks", { headers: { Authorization: token } })
+      .get("/tasks", {
+        headers: { Authorization: token }
+      })
       .then((res) => {
         const tasks = res.data;
         setStats({
@@ -26,36 +28,39 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="home-container">
-      {/* HEADER */}
-      <h1>Welcome, {user?.name} 👋</h1>
-      <p className="subtitle">
-        Manage your daily tasks efficiently
-      </p>
+    <div className="home-bg">
+      <div className="home-container fade-in">
+        <h1>
+          Welcome back, <span>{user?.name}</span> 👋
+        </h1>
+        <p className="subtitle">
+          Stay productive and manage your tasks easily
+        </p>
 
-      {/* STATS */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h2>{stats.total}</h2>
-          <p>Total Tasks</p>
+        {/* STATS */}
+        <div className="stats-grid">
+          <div className="stat-card slide-up">
+            <h2>{stats.total}</h2>
+            <p>Total Tasks</p>
+          </div>
+
+          <div className="stat-card slide-up delay">
+            <h2>{stats.completed}</h2>
+            <p>Completed</p>
+          </div>
+
+          <div className="stat-card slide-up delay2">
+            <h2>{stats.pending}</h2>
+            <p>Pending</p>
+          </div>
         </div>
 
-        <div className="stat-card completed">
-          <h2>{stats.completed}</h2>
-          <p>Completed</p>
+        {/* QUICK ACTIONS */}
+        <div className="quick-actions fade-in delay2">
+          <a href="/tasks">View Tasks</a>
+          <a href="/profile">Profile</a>
+          <a href="/settings">Settings</a>
         </div>
-
-        <div className="stat-card pending">
-          <h2>{stats.pending}</h2>
-          <p>Pending</p>
-        </div>
-      </div>
-
-      {/* QUICK ACTIONS */}
-      <div className="quick-actions">
-        <button>Create Task</button>
-        <button>View Tasks</button>
-        <button>Profile</button>
       </div>
     </div>
   );
