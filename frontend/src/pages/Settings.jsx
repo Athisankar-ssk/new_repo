@@ -18,16 +18,15 @@ export default function Settings() {
 
   const [message, setMessage] = useState("");
 
-  // Load notification preference
   useEffect(() => {
-    api
-      .get("/auth/me", { headers: { Authorization: token } })
-      .then((res) => {
-        setForm((prev) => ({
-          ...prev,
-          notifications: res.data.notifications
-        }));
-      });
+    api.get("/auth/me", {
+      headers: { Authorization: token }
+    }).then((res) => {
+      setForm(prev => ({
+        ...prev,
+        notifications: res.data.notifications
+      }));
+    });
   }, []);
 
   const handleChange = (e) => {
@@ -38,34 +37,38 @@ export default function Settings() {
     });
   };
 
-  // 🔐 CHANGE PASSWORD
-  const updatePassword = async () => {
-    if (!form.oldPassword || !form.password) return;
-    if (form.password !== form.confirmPassword) {
+  const saveSettings = async (e) => {
+    e.preventDefault();
+
+    if (form.password && form.password !== form.confirmPassword) {
       setMessage("Passwords do not match");
       return;
     }
 
-    await api.put(
-      "/auth/change-password",
-      {
-        oldPassword: form.oldPassword,
-        newPassword: form.password
-      },
-      { headers: { Authorization: token } }
-    );
+    try {
+      if (form.password) {
+        await api.put(
+          "/auth/change-password",
+          {
+            oldPassword: form.oldPassword,
+            newPassword: form.password
+          },
+          { headers: { Authorization: token } }
+        );
+      }
+
+      await api.put(
+        "/auth/preferences",
+        { notifications: form.notifications },
+        { headers: { Authorization: token } }
+      );
+
+      setMessage("Settings updated successfully!");
+    } catch {
+      setMessage("Update failed");
+    }
   };
 
-  // 🔔 SAVE NOTIFICATIONS
-  const saveNotifications = async () => {
-    await api.put(
-      "/auth/preferences",
-      { notifications: form.notifications },
-      { headers: { Authorization: token } }
-    );
-  };
-
-  // 🌙 THEME TOGGLE
   const toggleTheme = () => {
     const theme = darkMode ? "light" : "dark";
     setDarkMode(!darkMode);
@@ -73,9 +76,8 @@ export default function Settings() {
     document.body.className = theme;
   };
 
-  // 🗑️ DELETE ACCOUNT
   const deleteAccount = async () => {
-    if (!window.confirm("Are you sure? This cannot be undone.")) return;
+    if (!window.confirm("This action cannot be undone. Continue?")) return;
 
     await api.delete("/auth/delete-account", {
       headers: { Authorization: token }
@@ -85,80 +87,76 @@ export default function Settings() {
     window.location.href = "/register";
   };
 
-  // 💾 SAVE ALL
-  const updateSettings = async (e) => {
-    e.preventDefault();
-
-    try {
-      await updatePassword();
-      await saveNotifications();
-      setMessage("Settings updated successfully!");
-    } catch {
-      setMessage("Failed to update settings");
-    }
-  };
-
   return (
-    <div className="settings-container">
-      <div className="settings-card">
+    <div className="page-container">
+      <div className="settings-card fade-in">
         <h2>Settings</h2>
 
         {message && <p className="msg">{message}</p>}
 
-        <form onSubmit={updateSettings}>
-          {/* CHANGE PASSWORD */}
-          <label>Old Password</label>
+        <form onSubmit={saveSettings}>
+          {/* SECURITY */}
+          <h4 className="section-title">Security</h4>
+
           <input
             type="password"
             name="oldPassword"
+            placeholder="Old password"
             onChange={handleChange}
           />
 
-          <label>New Password</label>
           <input
             type="password"
             name="password"
+            placeholder="New password"
             onChange={handleChange}
           />
 
-          <label>Confirm Password</label>
           <input
             type="password"
             name="confirmPassword"
+            placeholder="Confirm password"
             onChange={handleChange}
           />
 
-         {/* NOTIFICATIONS */}
-<label className="toggle">
-  <span>Enable Notifications</span>
-  <input
-    type="checkbox"
-    name="notifications"
-    checked={form.notifications}
-    onChange={handleChange}
-  />
-</label>
+          {/* PREFERENCES */}
+          <h4 className="section-title">Preferences</h4>
 
+          <label className="toggle">
+            <span>Enable notifications</span>
+            <input
+              type="checkbox"
+              name="notifications"
+              checked={form.notifications}
+              onChange={handleChange}
+            />
+          </label>
 
-          {/* THEME */}
-          <div className="toggle">
+          <label className="toggle">
+            <span>Dark mode</span>
             <input
               type="checkbox"
               checked={darkMode}
               onChange={toggleTheme}
             />
-            <span>Dark Mode</span>
-          </div>
+          </label>
 
-          <button type="submit">Save Settings</button>
+          <button type="submit" className="btn-primary">
+            Save Settings
+          </button>
         </form>
 
-        <hr />
-
-        {/* DELETE ACCOUNT */}
-        <button className="danger-btn" onClick={deleteAccount}>
-          Delete Account
-        </button>
+        {/* DANGER ZONE */}
+        <div className="danger-zone">
+          <h4>Danger Zone</h4>
+          <button
+            type="button"
+            className="btn-danger"
+            onClick={deleteAccount}
+          >
+            Delete Account
+          </button>
+        </div>
       </div>
     </div>
   );
