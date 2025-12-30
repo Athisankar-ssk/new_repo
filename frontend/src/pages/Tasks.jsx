@@ -161,7 +161,7 @@ export default function Tasks() {
                     onChange={() => toggleComplete(t)}
                   />
                   <button onClick={() => startEdit(t)}>✏️</button>
-                  <button onClick={() => deleteTask(t._id)}>❌</button>
+                  <button onClick={() => deleteTask(t._id)}></button>
                 </div>
               </>
             )}
